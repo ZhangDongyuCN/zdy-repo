@@ -1,0 +1,63 @@
+﻿/*注意：配置文件需保存为 UTF-8 格式，且支持注释*/
+{
+	"written_line_break":"LF",    /*cpp 和 h 文件整理后的换行符，CRLF 或者 LF*/
+	"ignore_path":["./build", "./src/boost"],    /*忽略的文件夹，Linux 格式*/
+	"comment_start_flag":"Func Name:",    /*函数注释开始标志*/
+	"comment_end_flag":"Caution:",    /*函数注释结束标志*/
+	"cpp_format":[    /*cpp 注释格式整理正则表达式*/
+		{
+			"find":"( *?)(Func Name:.*?)(\\n)",    /*转移符用双斜杠而不是单斜杠，不管源文件的换行符是什么，这里统一用 LF*/
+			"replace":"    $2$3"
+		},
+		{
+			"find":"( *?)(Date Created:.*?)(\\n)",
+			"replace":" $2$3"
+		},
+		{
+			"find":"( *?)(Author:.*?)(\\n)",
+			"replace":"       $2$3"
+		},
+		{
+			"find":"( *?)(Description:.*?)(\\n)",
+			"replace":"  $2$3"
+		},
+		{
+			"find":"( *?)(Input:.*?)(\\n)",
+			"replace":"        $2$3"
+		},
+		{
+			"find":"( *?)(Return:.*?)(\\n)",
+			"replace":"       $2$3"
+		},
+		{
+			"find":"( *?)(Caution:.*?)(\\n)",
+			"replace":"      $2$3"
+		},
+		{
+			"find":"( {4,}?)(INOUT[^)]*?\\n)",    /*INOUT 必须放在 IN 之前，因为 IN 位于 INOUT 开头，替换 IN 也会替换 INOUT*/
+			"replace":"               $2"
+		},
+		{
+			"find":"( {4,}?)(IN[^)]*?\\n)",
+			"replace":"               $2"
+		},
+		{
+			"find":"( {4,}?)(OUT[^)]*?\\n)",
+			"replace":"               $2"
+		}
+	],
+	"h_format":[    /*h 注释格式整理正则表达式*/
+		{
+			"find":"(\\*)(INOUT.*?\\n)",    /*INOUT 必须放在 IN 之前，因为 IN 位于 INOUT 开头，替换 IN 也会替换 INOUT*/
+			"replace":"$1       $2"
+		},
+		{
+			"find":"(\\*)(IN.*?\\n)",
+			"replace":"$1       $2"
+		},
+		{
+			"find":"(\\*)(OUT.*?\\n)",
+			"replace":"$1       $2"
+		}
+	]
+}

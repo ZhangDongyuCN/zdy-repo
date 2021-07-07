@@ -1,0 +1,301 @@
+---
+# https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+
+Language: Cpp
+
+# The style used for all options not specifically set in the configuration.
+BasedOnStyle: LLVM
+
+# The extra indent or outdent of access modifiers, e.g. public:.
+AccessModifierOffset: -4
+
+# horizontally aligns arguments after an open bracket: Align, DontAlign, AlwaysBreak.
+AlignAfterOpenBracket: DontAlign
+
+# If true, aligns consecutive C/C++ preprocessor macros.
+AlignConsecutiveMacros: false
+
+# If true, aligns consecutive assignments.
+AlignConsecutiveAssignments: false
+
+# If true, aligns consecutive declarations.
+AlignConsecutiveDeclarations: false
+
+# Options for aligning backslashes in escaped newlines: DontAlign, Left, Right
+AlignEscapedNewlines: DontAlign
+
+# If true, horizontally align operands of binary and ternary expressions.
+AlignOperands: false
+
+# If true, aligns trailing comments.
+AlignTrailingComments: false
+
+# If a function call or braced initializer list doesn't fit on a line, allow putting all arguments onto the next line, even if BinPackArguments is false.
+AllowAllArgumentsOnNextLine: false
+
+# If a constructor definition with a member initializer list doesn't fit on a single line, allow putting all member initializers onto the next line, if `ConstructorInitializerAllOnOneLineOrOnePerLine` is true. Note that this parameter has no effect if `ConstructorInitializerAllOnOneLineOrOnePerLine` is false.
+AllowAllConstructorInitializersOnNextLine: false
+
+# If the function declaration doesn't fit on a line, allow putting all parameters of a function declaration onto the next line even if BinPackParameters is false.
+AllowAllParametersOfDeclarationOnNextLine: false
+
+# Allows contracting simple braced statements to a single line.
+AllowShortBlocksOnASingleLine: false
+
+# If true, short case labels will be contracted to a single line.
+AllowShortCaseLabelsOnASingleLine: false
+
+# Dependent on the value, int f() { return 0; } can be put on a single line.
+AllowShortFunctionsOnASingleLine: InlineOnly
+
+# Dependent on the value, auto lambda []() { return 0; } can be put on a single line.
+AllowShortLambdasOnASingleLine: All
+
+# If true, if (a) return; can be put on a single line.
+AllowShortIfStatementsOnASingleLine: Never
+
+# If true, while (true) continue; can be put on a single line.
+AllowShortLoopsOnASingleLine: false
+
+# The function definition return type breaking style to use. This option is deprecated and is retained for backwards compatibility.
+AlwaysBreakAfterDefinitionReturnType: None
+
+# The function declaration return type breaking style to use.
+AlwaysBreakAfterReturnType: None
+
+# If true, always break before multiline string literals.
+AlwaysBreakBeforeMultilineStrings: false
+
+# The template declaration breaking style to use.
+AlwaysBreakTemplateDeclarations: Yes
+
+# If false, a function call's arguments will either be all on the same line or will have one line each.
+BinPackArguments: true
+
+# If false, a function declaration's or function definition's parameters will either all be on the same line or will have one line each.
+BinPackParameters: true
+
+# Control of individual brace wrapping cases.
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterClass: false
+  AfterControlStatement: false
+  AfterEnum: false
+  AfterFunction: true
+  AfterNamespace: false
+  AfterObjCDeclaration: false
+  AfterStruct: false
+  AfterUnion: false
+  AfterExternBlock: false
+  BeforeCatch: false
+  BeforeElse: false
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+
+# The way to wrap binary operators.
+BreakBeforeBinaryOperators: None
+
+# The brace breaking style to use.
+BreakBeforeBraces: Custom
+
+# The inheritance list style to use.
+BreakBeforeInheritanceComma: false
+BreakInheritanceList: BeforeColon
+
+# If true, ternary operators will be placed after line breaks.
+BreakBeforeTernaryOperators: false
+
+# The constructor initializers style to use.
+BreakConstructorInitializersBeforeComma: false
+BreakConstructorInitializers: AfterColon
+
+#
+BreakAfterJavaFieldAnnotations: false
+
+# Allow breaking string literals when formatting. (!!ColumnLimit: 120 -> ColumnLimit: 150)
+BreakStringLiterals: true
+ColumnLimit: 150
+CommentPragmas: '^ NOLINT'
+
+# If true, consecutive namespace declarations will be on the same line. If false, each namespace is declared on a new line.
+CompactNamespaces: false
+
+# If the constructor initializers don't fit on a line, put each initializer on its own line.
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+
+# If true, format braced lists as best suited for C++11 braced lists.
+Cpp11BracedListStyle: true
+
+# If true, analyze the formatted file for the most common alignment of & and *. Pointer and reference alignment styles are going to be updated according to the preferences found in the file. PointerAlignment is then used only as fallback.
+DerivePointerAlignment: false
+DisableFormat: false
+
+# If true, clang-format detects whether function calls and definitions are formatted with one parameter per line.
+ExperimentalAutoDetectBinPacking: false
+
+# If true, clang-format adds missing namespace end comments and fixes invalid existing ones.
+FixNamespaceComments: true
+
+# A vector of macros that should be interpreted as foreach loops instead of as function calls.
+ForEachMacros:
+  - foreach
+  - Q_FOREACH
+  - BOOST_FOREACH
+
+# Dependent on the value, multiple #include blocks can be sorted as one and divided based on category.
+IncludeBlocks: Preserve
+
+# Regular expressions denoting the different #include categories used for ordering #includes.
+IncludeCategories:
+  - Regex: '^<.*\.h>'
+    Priority: 1
+  - Regex: '^<.*'
+    Priority: 2
+  - Regex: '^"spt_define\.h"'
+    Priority: 3
+  - Regex: '^"spt_.*\.h"'
+    Priority: 4
+  - Regex: '^"utfp_.*\.h"'
+    Priority: 5
+  - Regex: '^"ufp_define\.h"'
+    Priority: 6
+  - Regex: '^"ufp_.*\.hxx"'
+    Priority: 7
+  - Regex: '^"ufp_.*\.h"'
+    Priority: 8
+  - Regex: '^"ufdc_define\.h"'
+    Priority: 9
+  - Regex: '^"ufs_.*\.h"'
+    Priority: 10
+  - Regex: '^"ctrl_define\.h"'
+    Priority: 11
+  - Regex: '^"ctrl_.*\.h"'
+    Priority: 12
+  - Regex: '^"cdm_.*\.h"'
+    Priority: 13
+  - Regex: '.*'
+    Priority: 14
+IncludeIsMainRegex: '([-_](test|benchmark))?$'
+
+# Indent case labels one level from the switch statement.
+IndentCaseLabels: true
+
+# The preprocessor directive indenting style to use.
+IndentPPDirectives: None
+IndentWidth: 4
+
+# Indent if a function definition or declaration is wrapped after the type.
+IndentWrappedFunctionNames: false
+JavaScriptQuotes: Leave
+JavaScriptWrapImports: true
+
+# If true, the empty line at the start of blocks is kept.
+KeepEmptyLinesAtTheStartOfBlocks: false
+MacroBlockBegin: '[A-Z_]+_BEGIN\(.*\)$'
+MacroBlockEnd: '.[A-Z_]+_END\(.*\)$'
+MaxEmptyLinesToKeep: 1
+
+# The indentation used for namespaces.
+NamespaceIndentation: Inner
+ObjCBinPackProtocolList: Never
+ObjCBlockIndentWidth: 2
+ObjCSpaceAfterProperty: false
+ObjCSpaceBeforeProtocolList: true
+
+# The penalty for breaking around an assignment operator.???
+PenaltyBreakAssignment: 10
+PenaltyBreakBeforeFirstCallParameter: 1000
+PenaltyBreakComment: 100
+PenaltyBreakFirstLessLess: 5
+PenaltyBreakString: 10
+PenaltyBreakTemplateDeclaration: 10
+PenaltyExcessCharacter: 20
+PenaltyReturnTypeOnItsOwnLine: 50
+
+# Pointer and reference alignment style. (!!PointerAlignment: Right -> PointerAlignment: Left)
+PointerAlignment: Left
+RawStringFormats:
+  - Language:        Cpp
+    Delimiters:
+      - cc
+      - CC
+      - cpp
+      - Cpp
+      - CPP
+      - 'c++'
+      - 'C++'
+    CanonicalDelimiter: ''
+    BasedOnStyle:    google
+  - Language:        TextProto
+    Delimiters:
+      - pb
+      - PB
+      - proto
+      - PROTO
+    EnclosingFunctions:
+      - EqualsProto
+      - EquivToProto
+      - PARSE_PARTIAL_TEXT_PROTO
+      - PARSE_TEST_PROTO
+      - PARSE_TEXT_PROTO
+      - ParseTextOrDie
+      - ParseTextProtoOrDie
+    CanonicalDelimiter: ''
+    BasedOnStyle:    google
+# If true, clang-format will attempt to re-flow comments.
+ReflowComments: false
+
+# If true, clang-format will sort #includes.
+SortIncludes: false
+
+# If true, clang-format will sort using declarations.
+SortUsingDeclarations: true
+
+# If true, a space is inserted after C style casts.
+SpaceAfterCStyleCast: false
+
+# If true, a space is inserted after the logical not operator (!).
+SpaceAfterLogicalNot: false
+
+# If true, a space will be inserted after the 'template' keyword.
+SpaceAfterTemplateKeyword: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+
+# Defines in which cases to put a space before opening parentheses.
+SpaceBeforeParens: ControlStatements
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceInEmptyParentheses: false
+
+# The number of spaces before trailing line comments (// - comments).
+SpacesBeforeTrailingComments: 1
+
+# If true, spaces will be inserted after < and before > in template argument lists.
+SpacesInAngles: false
+
+# If true, spaces are inserted inside container literals (e.g. ObjC and Javascript array and dict literals).
+SpacesInContainerLiterals: true
+
+# If true, spaces may be inserted into C style casts.
+SpacesInCStyleCastParentheses: false
+
+# If true, spaces will be inserted after ( and before ).
+SpacesInParentheses: false
+
+# If true, spaces will be inserted after [ and before ]. Lambdas or unspecified size array declarations will not be affected.
+SpacesInSquareBrackets: false
+Standard: Cpp11
+
+# A vector of macros that should be interpreted as complete statements.
+StatementMacros:
+  - Q_UNUSED
+  - QT_REQUIRE_VERSION
+TabWidth: 4
+UseTab: Never
+...
