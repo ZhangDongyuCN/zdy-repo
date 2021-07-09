@@ -2,11 +2,9 @@ head_1_color: 7030A0
 head_2_color: 0070C0
 head_3_color: 00B050
 head_4_color: C55A11
-head_5_color: FF66CC
 line_code_color: C00000
-head_1_#_num: 1
 word_mode: 1
 img_mode: 1
-src_path: D:\下载\linux-manual.docx
-save_path: D:\下载\linux-manual.md
+src_path: test_document\git常用命令.docx
+save_path: test_document\git常用命令-temp.md
 imgs_path: Null

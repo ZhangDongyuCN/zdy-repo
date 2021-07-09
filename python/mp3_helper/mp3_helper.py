@@ -8,7 +8,7 @@ if __name__ == '__main__':
     mp3_files = os.listdir(dir_path)
     mp3_files.sort()
 
-    cur_time = time.time()
+    cur_time = time.time() - 31536000  # 一年前
     for mp3_file in mp3_files:
         mp3_file = os.path.join(dir_path, mp3_file)
         stinfo = os.stat(mp3_file)

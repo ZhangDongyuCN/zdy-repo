@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 import os
 import shutil
@@ -117,14 +117,12 @@ def write_paragraph(doc, block, f_md, md_save_path, config, hyperlink_dict):
     h2c = config["head_2_color"]
     h3c = config["head_3_color"]
     h4c = config["head_4_color"]
-    h5c = config["head_5_color"]
     lcc = config["line_code_color"]
-    h1n = config["head_1_#_num"]
     img_mode = config["img_mode"]
     imgs_path = config["imgs_path"]
 
     # 处理段落内容
-    # + 通过颜色判断段落是否为标题（最多支持五级标题）
+    # + 通过颜色判断段落是否为标题（最多支持四级标题）
     if len(block.runs) > 0:
         rgb = block.runs[0].font.color.rgb
         if rgb == RGBColor(eval('0x' + h1c[0:2]), eval('0x' + h1c[2:4]), eval('0x' + h1c[4:6])):  # 一级标题
@@ -135,8 +133,6 @@ def write_paragraph(doc, block, f_md, md_save_path, config, hyperlink_dict):
             text_type = 'Heading 3'
         elif rgb == RGBColor(eval('0x' + h4c[0:2]), eval('0x' + h4c[2:4]), eval('0x' + h4c[4:6])):  # 四级标题
             text_type = 'Heading 4'
-        elif rgb == RGBColor(eval('0x' + h5c[0:2]), eval('0x' + h5c[2:4]), eval('0x' + h5c[4:6])):  # 五级标题
-            text_type = 'Heading 5'
         else:
             text_type = ''
     else:
@@ -151,15 +147,13 @@ def write_paragraph(doc, block, f_md, md_save_path, config, hyperlink_dict):
 
         # 文本写入文件
         if text_type == 'Heading 1':
-            f_md.write('#' * (h1n + 0) + ' ' + text + '\n')
+            f_md.write('# ' + text + '\n')
         elif text_type == 'Heading 2':
-            f_md.write('#' * (h1n + 1) + ' ' + text + '\n')
+            f_md.write('## ' + text + '\n')
         elif text_type == 'Heading 3':
-            f_md.write('#' * (h1n + 2) + ' ' + text + '\n')
+            f_md.write('### ' + text + '\n')
         elif text_type == 'Heading 4':
-            f_md.write('#' * (h1n + 3) + ' ' + text + '\n')
-        elif text_type == 'Heading 5':
-            f_md.write('#' * (h1n + 4) + ' ' + text + '\n')
+            f_md.write('#### ' + text + '\n')
         else:
             raise ValueError('text_type is not right, current text_type is {}'.format(text_type))
 
@@ -271,7 +265,7 @@ def docx_2_markdown(docx_path, md_save_path, config):
 
 def enter_fun():
     # 解析配置文件
-    config = yaml.load(open('./config.yaml', 'rt', encoding='utf-8'), Loader=yaml.FullLoader)
+    config = yaml.load(open('./docx_2_markdown_config.yaml', 'rt', encoding='utf-8'), Loader=yaml.FullLoader)
     word_mode = config["word_mode"]
     src_path = config["src_path"]
     save_path = config["save_path"]

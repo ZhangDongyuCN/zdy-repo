@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 import os
 import shutil
@@ -112,7 +112,6 @@ def deal_hyperlink_text(md_text, paragraph, hyperlink_dict):
 
 def write_paragraph(doc, block, f_md, md_save_path, config, hyperlink_dict):
     # 配置项
-    h1n = config["head_1_#_num"]
     img_mode = config["img_mode"]
     imgs_path = config["imgs_path"]
 
@@ -130,15 +129,15 @@ def write_paragraph(doc, block, f_md, md_save_path, config, hyperlink_dict):
 
         # 文本写入文件
         if text_type == 'Heading 1':
-            f_md.write('#' * (h1n + 0) + ' ' + text + '\n')
+            f_md.write('# ' + text + '\n')
         elif text_type == 'Heading 2':
-            f_md.write('#' * (h1n + 1) + ' ' + text + '\n')
+            f_md.write('## ' + text + '\n')
         elif text_type == 'Heading 3':
-            f_md.write('#' * (h1n + 2) + ' ' + text + '\n')
+            f_md.write('### ' + text + '\n')
         elif text_type == 'Heading 4':
-            f_md.write('#' * (h1n + 3) + ' ' + text + '\n')
+            f_md.write('#### ' + text + '\n')
         elif text_type == 'Heading 5':
-            f_md.write('#' * (h1n + 4) + ' ' + text + '\n')
+            f_md.write('##### ' + text + '\n')
         else:
             raise ValueError('text_type is not right, current text_type is {}'.format(text_type))
 
@@ -245,7 +244,7 @@ def docx_2_markdown(docx_path, md_save_path, config):
 
 def enter_fun():
     # 解析配置文件
-    config = yaml.load(open('./config.yaml', 'rt', encoding='utf-8'), Loader=yaml.FullLoader)
+    config = yaml.load(open('./docx_2_markdown_config.yaml', 'rt', encoding='utf-8'), Loader=yaml.FullLoader)
     word_mode = config["word_mode"]
     src_path = config["src_path"]
     save_path = config["save_path"]
