@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
 import glob
 import yaml
 import shutil
@@ -59,7 +60,7 @@ def set_cell_background_color(cell, color_str):
 def write_block_code(f_md, document):
     block_code = ''
     line = f_md.readline()
-    while line[0:3] != '```':
+    while line.lstrip(' ').find('```') != 0:
         block_code += line
         line = f_md.readline()
     block_code = block_code.strip('\n')
@@ -67,6 +68,16 @@ def write_block_code(f_md, document):
     table = document.add_table(rows=1, cols=1, style='Table Grid')
     table.cell(0, 0).text = block_code
     set_cell_background_color(table.cell(0, 0), 'F2F2F2')
+
+
+def write_list_bullet(document, line, md_path):
+    line = line.replace('- ', '')
+    write_normal_text(document, line, md_path, 'List Bullet')
+
+
+def write_list_number(document, line, md_path):
+    line = re.sub(r'\d+. ', '', line)
+    write_normal_text(document, line, md_path, 'List Number')
 
 
 def write_line_code(paragraph, line, i, start_idx):
@@ -234,8 +245,8 @@ def write_hyperlink(paragraph, line, i, start_idx):
     return i, start_idx
 
 
-def write_normal_text(document, line, md_path):
-    paragraph = document.add_paragraph('')
+def write_normal_text(document, line, md_path, style=None):
+    paragraph = document.add_paragraph('', style)
 
     i = 0
     line_len = len(line)
@@ -264,42 +275,56 @@ def markdown_2_docx(md_path, docx_save_path):
     document.styles['Normal'].font.size = Pt(10.5)
     document.styles['Normal'].font.color.rgb = RGBColor(0, 0, 0)
 
-    # 逐行解析markdown，生成word样式
-    with open(md_path, 'rt', encoding='utf-8') as f_md:
-        line = f_md.readline()
-        while line:
-            # 判断是不是空
-            if line.isspace():
-                document.add_paragraph('')
-
-            # 一级标题
-            elif line.find('# ') == 0:
-                write_1eading_1(document, line)
-
-            # 二级标题
-            elif line.find('## ') == 0:
-                write_1eading_2(document, line)
-
-            # 三级标题
-            elif line.find('### ') == 0:
-                write_1eading_3(document, line)
-
-            # 四级标题
-            elif line.find('#### ') == 0:
-                write_1eading_4(document, line)
-
-            # 块代码
-            elif line[0:3] == '```':
-                write_block_code(f_md, document)
-
-            # 正文文本
-            else:
-                write_normal_text(document, line, md_path)
-
-            # 读取下一行
+    try:
+        # 逐行解析markdown，生成word样式
+        with open(md_path, 'rt', encoding='utf-8') as f_md:
             line = f_md.readline()
+            while line:
+                line = line.rstrip('\n')
 
-        document.save(docx_save_path)
+                # 判断是不是空
+                if line.isspace():
+                    document.add_paragraph('')
+
+                # 一级标题
+                elif line.find('# ') == 0:
+                    write_1eading_1(document, line)
+
+                # 二级标题
+                elif line.find('## ') == 0:
+                    write_1eading_2(document, line)
+
+                # 三级标题
+                elif line.find('### ') == 0:
+                    write_1eading_3(document, line)
+
+                # 四级标题
+                elif line.find('#### ') == 0:
+                    write_1eading_4(document, line)
+
+                # 项目符号
+                elif line.lstrip(' ').find('- ') == 0:
+                    write_list_bullet(document, line, md_path)
+
+                # 列表
+                elif re.match(r'\d+. ', line.lstrip(' ')) is not None:
+                    write_list_number(document, line, md_path)
+
+                # 块代码
+                elif line.lstrip(' ').find('```') == 0:
+                    write_block_code(f_md, document)
+
+                # 正文文本
+                else:
+                    write_normal_text(document, line, md_path)
+
+                # 读取下一行
+                line = f_md.readline()
+
+            document.save(docx_save_path)
+    except Exception as e:
+        print('[ERROR]', e)
+        print('[ERROR] error in markdown_2_docx(), line is: {}'.format(line))
 
 
 def enter_fun():
