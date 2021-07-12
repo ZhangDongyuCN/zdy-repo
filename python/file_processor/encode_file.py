@@ -21,6 +21,7 @@ def decode_file(txt, file):
 
 
 def split_txt_file(txt, each_file_mb, save_dir):
+    each_file_b = each_file_mb * 1024 * 1024
     if exists(save_dir):
         shutil.rmtree(save_dir)
     makedirs(save_dir)
@@ -28,11 +29,11 @@ def split_txt_file(txt, each_file_mb, save_dir):
     with open(txt, 'r') as fin:
         i = 1
         while True:
-            data = fin.read(each_file_mb * 1024 * 1024)
+            data = fin.read(each_file_b)
             with open(join(save_dir, str(i) + '.txt'), 'w') as fout:
                 fout.write(data)
             i += 1
-            if len(data) < each_file_mb:
+            if len(data) < each_file_b:
                 break
 
 
