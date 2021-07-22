@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <iostream>
+#include <cmath>
 
 //宏定义：参数流向
 #define IN
@@ -17,9 +18,9 @@
 
 class StringHelper {
 public:
-    inline void Capitalize(INOUT std::string& str);
+    inline static void Capitalize(INOUT std::string& str);
 
-    inline static void Title(IN std::string& str);
+    inline static void Title(INOUT std::string& str);
 
     inline static void Center(INOUT std::string& str, IN size_t width, IN const char fillchar = ' ');
 
@@ -29,21 +30,21 @@ public:
 
     inline static void Zfill(INOUT std::string& str, IN size_t width);
 
-    inline static void Lstrip(IN std::string& str, IN const std::string& chars = " ");
+    inline static void Lstrip(INOUT std::string& str, IN const std::string& chars = " ");
 
-    inline static void Rstrip(IN std::string& str, IN const std::string& chars = " ");
+    inline static void Rstrip(INOUT std::string& str, IN const std::string& chars = " ");
 
-    inline static void Strip(IN std::string& str, IN const std::string& chars = " ");
+    inline static void Strip(INOUT std::string& str, IN const std::string& chars = " ");
 
-    inline static void Lower(IN std::string& str);
+    inline static void Lower(INOUT std::string& str);
 
-    inline static void Upper(IN std::string& str);
+    inline static void Upper(INOUT std::string& str);
 
-    inline static void Swapcase(IN std::string& str);
+    inline static void Swapcase(INOUT std::string& str);
 
     inline static std::vector<std::string> Split(IN const std::string& str, IN const std::string& delims = " ");
 
-    inline static std::vector<std::string> SplitLines(IN const std::string& str, bool keepends = false);
+    inline static std::vector<std::string> SplitLines(IN const std::string& str, IN bool keepends = false);
 
     inline static char Max(IN const std::string& str);
 
@@ -78,8 +79,12 @@ public:
     inline static bool EndsWith(IN const std::string& str, IN const std::string& sub,
                                 IN size_t start = 0, IN size_t end = 0);
 
+    inline static std::string Join(IN const std::vector<std::string>& token, IN const std::string& linkChars = " ");
+
+    inline static std::vector<std::string> ToVector(IN const std::string& str);
+
     template<class T>
-    inline static T Str2Num(IN const std::string& str);
+    inline static T ToNum(IN const std::string& str);
 
     template<class T>
     inline static std::vector<T> ExtractNum(IN const std::string& str, IN const std::string& delims = " ");
@@ -97,19 +102,19 @@ public:
 inline void StringHelper::Capitalize(INOUT std::string& str) {
     if (str.size() >= 1) {
         str[0] = toupper(str[0]);
-        std::transform(str.begin() + 1, str.end(), str.begin(), tolower);
+        std::transform(str.begin() + 1, str.end(), str.begin() + 1, tolower);
     }
 }
 
 /*
  * 功能：返回一个指定的宽度width居中的字符串，fillchar为填充的字符，默认为空格。
- * 注意：若`(width - str.length) % 2 != 0`，则前边的填充字符数比后边的少1。
+ * 注意：若`(width - str.length) % 2 != 0`，则前边的填充字符数比后边的多1。
  */
 inline void StringHelper::Center(INOUT std::string& str, IN size_t width, IN const char fillchar) {
     if (width > str.size()) {
         size_t padLen = width - str.size();
         std::string newStr(width, fillchar);
-        std::move(str.begin(), str.end(), newStr.begin() + padLen / 2);
+        std::move(str.begin(), str.end(), newStr.begin() + ceil(padLen / 2.0));
         str = std::move(newStr);
     }
 }
@@ -246,20 +251,40 @@ inline bool StringHelper::EndsWith(IN const std::string& str, IN const std::stri
     if (end - start + 1 < str.size()) {
         std::string newStr = str.substr(start, end + 1);
 
-        size_t pos = newStr.find(sub);
-        if (pos + sub.size() == newStr.size()) {
+        if (std::equal(newStr.begin() + newStr.size() - sub.size(), newStr.end(), sub.begin())) {
             return true;
         } else {
             return false;
         }
     } else {
-        size_t pos = str.find(sub);
-        if (pos + sub.size() == str.size()) {
+        if (std::equal(str.begin() + str.size() - sub.size(), str.end(), sub.begin())) {
             return true;
         } else {
             return false;
         }
     }
+}
+
+/*
+ * 功能：将序列中的字符串以指定的字符连接生成一个新的字符串。
+ */
+inline std::string StringHelper::Join(IN const std::vector<std::string>& token, IN const std::string& linkChars) {
+    std::string linkdStr;
+    for (size_t i = 0; i < token.size() - 1; i++) {
+        linkdStr.append(token[i] + linkChars);
+    }
+    linkdStr.append(*(token.end() - 1));
+    return linkdStr;
+}
+
+/*
+ * 功能：字符串逐字符切割转vector。
+ */
+inline std::vector<std::string> StringHelper::ToVector(IN const std::string& str) {
+    std::vector<std::string> token;
+    token.reserve(str.size());
+    std::for_each(str.begin(), str.end(), [&](const char& e) { token.push_back(std::string(1, e)); });
+    return token;
 }
 
 /*
@@ -466,10 +491,10 @@ inline void StringHelper::Swapcase(IN std::string& str) {
  * 功能：截掉字符串左边指定字符（默认为空格；可以指定多个字符）。
  */
 inline void StringHelper::Lstrip(IN std::string& str, IN const std::string& chars) {
-    std::set<char> chars_(chars.begin(), chars.end());
+    std::set<char> charsSet(chars.begin(), chars.end());
     size_t pos = 0;
     for (size_t i = 0; i < str.size(); i++) {
-        if (chars_.find(str[i]) == chars_.end()) {
+        if (charsSet.find(str[i]) == charsSet.end()) {
             pos = i;
             break;
         }
@@ -483,11 +508,11 @@ inline void StringHelper::Lstrip(IN std::string& str, IN const std::string& char
  * 功能：截掉字符串右边指定字符（默认为空格；可以指定多个字符）。
  */
 inline void StringHelper::Rstrip(IN std::string& str, IN const std::string& chars) {
-    std::set<char> chars_(chars.begin(), chars.end());
+    std::set<char> charsSet(chars.begin(), chars.end());
     size_t pos = str.size() - 1;
     size_t len = str.size();
     for (size_t i = len - 1; i >= 0; i--) {
-        if (chars_.find(str[i]) == chars_.end()) {
+        if (charsSet.find(str[i]) == charsSet.end()) {
             pos = i;
             break;
         }
@@ -501,12 +526,12 @@ inline void StringHelper::Rstrip(IN std::string& str, IN const std::string& char
  * 功能：截掉字符串两边指定字符（默认为空格；可以指定多个字符）。
  */
 inline void StringHelper::Strip(IN std::string& str, IN const std::string& chars) {
-    std::set<char> chars_(chars.begin(), chars.end());
+    std::set<char> charsSet(chars.begin(), chars.end());
 
     size_t len = str.size();
     size_t startPos = 0;
     for (size_t i = 0; i < len; i++) {
-        if (chars_.find(str[i]) == chars_.end()) {
+        if (charsSet.find(str[i]) == charsSet.end()) {
             startPos = i;
             break;
         }
@@ -514,7 +539,7 @@ inline void StringHelper::Strip(IN std::string& str, IN const std::string& chars
 
     size_t endPos = len - 1;
     for (size_t i = len - 1; i >= 0; i--) {
-        if (chars_.find(str[i]) == chars_.end()) {
+        if (charsSet.find(str[i]) == charsSet.end()) {
             endPos = i;
             break;
         }
@@ -539,7 +564,7 @@ inline char StringHelper::Max(IN const std::string& str) {
         }
         return maxChar;
     } else {
-        throw std::range_error("Is empty!");
+        throw std::range_error("The string is empty!");
     }
 }
 
@@ -556,7 +581,7 @@ inline char StringHelper::Min(IN const std::string& str) {
         }
         return minChar;
     } else {
-        throw std::range_error("Is empty!");
+        throw std::range_error("The string is empty!");
     }
 }
 
@@ -643,14 +668,14 @@ inline std::vector<std::string> StringHelper::SplitLines(IN const std::string& s
  * 功能：字符串转数字
  */
 template<class T>
-inline T StringHelper::Str2Num(IN const std::string& str) {
+inline T StringHelper::ToNum(IN const std::string& str) {
     if (StringHelper::Isdigit(str)) {
         std::istringstream iss(str);
         T num;
         iss >> num;
         return num;
     } else {
-        throw std::runtime_error("Is not a digit str!");
+        throw std::runtime_error("It is not a digit string!");
     }
 }
 
@@ -666,13 +691,13 @@ inline std::vector<T> StringHelper::ExtractNum(IN const std::string& str, IN con
         size_t startPos = str.find_first_not_of(delims, 0);
         size_t endPos = str.find_first_of(delims, startPos);
         while (startPos != std::string::npos) {
-            number.push_back(StringHelper::Str2Num<T>(str.substr(startPos, endPos - startPos)));
+            number.push_back(StringHelper::ToNum<T>(str.substr(startPos, endPos - startPos)));
             startPos = str.find_first_not_of(delims, endPos);
             endPos = str.find_first_of(delims, startPos);
         }
         return number;
     } else {
-        throw std::runtime_error("Is not a digit str with specified delim!");
+        throw std::runtime_error("It is not a digit string with specified delim!");
     }
 }
 
