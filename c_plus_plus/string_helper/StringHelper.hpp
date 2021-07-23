@@ -42,7 +42,15 @@ public:
 
     inline static void Swapcase(INOUT std::string& str);
 
+    inline static void CamelCase2Underline(INOUT std::string& str);
+
+    inline static void Underline2CamelCase(INOUT std::string& str, IN bool toLowerCamelCase = false);
+
     inline static std::vector<std::string> Split(IN const std::string& str, IN const std::string& delims = " ");
+
+    inline static std::vector<std::string> SplitCamelCase(IN const std::string& str);
+
+    inline static std::vector<std::string> SplitUnderline(IN const std::string& str);
 
     inline static std::vector<std::string> SplitLines(IN const std::string& str, IN bool keepends = false);
 
@@ -210,22 +218,10 @@ inline bool StringHelper::StartsWith(IN const std::string& str, IN const std::st
         end = str.size() - 1;
     }
 
-    if (end - start + 1 < str.size()) {
-        std::string newStr = str.substr(start, end + 1);
-
-        size_t pos = newStr.find(sub);
-        if (pos == 0) {
-            return true;
-        } else {
-            return false;
-        }
+    if (end - start + 1 < sub.size()) {
+        return false;
     } else {
-        size_t pos = str.find(sub);
-        if (pos == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return std::equal(str.begin() + start, str.begin() + +start + sub.size(), sub.begin());
     }
 }
 
@@ -248,20 +244,12 @@ inline bool StringHelper::EndsWith(IN const std::string& str, IN const std::stri
         end = str.size() - 1;
     }
 
-    if (end - start + 1 < str.size()) {
-        std::string newStr = str.substr(start, end + 1);
-
-        if (std::equal(newStr.begin() + newStr.size() - sub.size(), newStr.end(), sub.begin())) {
-            return true;
-        } else {
-            return false;
-        }
+    if (end - start + 1 < sub.size()) {
+        return false;
     } else {
-        if (std::equal(str.begin() + str.size() - sub.size(), str.end(), sub.begin())) {
-            return true;
-        } else {
-            return false;
-        }
+        return std::equal(str.rbegin() + (str.size() - end - 1),
+                          str.rbegin() + (str.size() - end - 1 + sub.size()),
+                          sub.rbegin());
     }
 }
 
@@ -291,22 +279,19 @@ inline std::vector<std::string> StringHelper::ToVector(IN const std::string& str
  * 功能：返回“标题化”的字符串，就是说所有单词的首个字母转化为大写，其余字母均为小写(见IsTitle())。
  */
 inline void StringHelper::Title(IN std::string& str) {
+    if (!str.empty()) {
+        // may add some char else in the future
+        std::set<char> punctuation{',', '.', '?'};
 
-    if (str.empty()) {
-        return;
-    }
+        str[0] = toupper(str[0]);
 
-    // may add some char else in the future
-    std::set<char> punctuation{',', '.', '?'};
-
-    str[0] = toupper(str[0]);
-
-    for (size_t i = 1; i < str.size(); i++) {
-        char prevChar = str[i - 1];
-        if (isspace(prevChar) || isdigit(prevChar) || punctuation.find(prevChar) != punctuation.end()) {
-            str[i] = toupper(str[i]);
-        } else {
-            str[i] = tolower(str[i]);
+        for (size_t i = 1; i < str.size(); i++) {
+            char prevChar = str[i - 1];
+            if (isspace(prevChar) || isdigit(prevChar) || punctuation.find(prevChar) != punctuation.end()) {
+                str[i] = toupper(str[i]);
+            } else {
+                str[i] = tolower(str[i]);
+            }
         }
     }
 }
@@ -432,31 +417,27 @@ inline bool StringHelper::Isspace(const std::string& str) {
  * 功能：如果字符串是标题化的(见Title())则返回true，否则返回false。
  */
 inline bool StringHelper::IsTitle(const std::string& str) {
-    if (str.empty()) {
+    if (str.empty() || islower(str[0])) {
         return false;
-    }
+    } else {
+        // may add some char else in the future
+        std::set<char> punctuation{',', '.', '?'};
 
-    if (islower(str[0])) {
-        return false;
-    }
-
-    // may add some char else in the future
-    std::set<char> punctuation{',', '.', '?'};
-
-    for (size_t i = 1; i < str.size(); i++) {
-        char prevChar = str[i - 1];
-        if (isspace(prevChar) || isdigit(prevChar) || punctuation.find(prevChar) != punctuation.end()) {
-            if (islower(str[i])) {
-                return false;
-            }
-        } else {
-            if (isupper(str[i])) {
-                return false;
+        for (size_t i = 1; i < str.size(); i++) {
+            char prevChar = str[i - 1];
+            if (isspace(prevChar) || isdigit(prevChar) || punctuation.find(prevChar) != punctuation.end()) {
+                if (islower(str[i])) {
+                    return false;
+                }
+            } else {
+                if (isupper(str[i])) {
+                    return false;
+                }
             }
         }
-    }
 
-    return true;
+        return true;
+    }
 }
 
 /*
@@ -485,6 +466,51 @@ inline void StringHelper::Swapcase(IN std::string& str) {
         }
         return e;
     });
+}
+
+/*
+ * 功能：驼峰(大驼峰和小驼峰均可)转下划线。
+ *       例如：“ZhangSan"和"zhangSan"均可转成"zhang_san"。
+ * 注意：需要用户保证输入是正确的驼峰，否则转换结果未知。
+ */
+inline void StringHelper::CamelCase2Underline(INOUT std::string& str) {
+    if (!str.empty()) {
+        std::string newStr;
+        for (size_t i = 0; i < str.size(); i++) {
+            if (i != str.size() - 1 && isupper(str[i + 1])) {
+                newStr += tolower(str[i]);
+                newStr += '_';
+            } else {
+                newStr += str[i];
+            }
+        }
+        str = move(newStr);
+    }
+}
+
+/*
+ * 功能：下划线转驼峰(大驼峰和小驼峰均可，默认转为大驼峰)。
+ * 注意：需要用户保证输入是正确的下划线风格，否则转换结果未知。
+ */
+inline void StringHelper::Underline2CamelCase(INOUT std::string& str, IN bool toLowerCamelCase) {
+    if (!str.empty()) {
+        std::string newStr;
+        if (toLowerCamelCase) {
+            newStr += tolower(str[0]);
+        } else {
+            newStr += toupper(str[0]);
+        }
+        for (size_t i = 1; i < str.size(); i++) {
+            if (str[i] == '_') {
+                continue;
+            } else if (str[i - 1] == '_') {
+                newStr += toupper(str[i]);
+            } else {
+                newStr += str[i];
+            }
+        }
+        str = move(newStr);
+    }
 }
 
 /*
@@ -699,6 +725,36 @@ inline std::vector<T> StringHelper::ExtractNum(IN const std::string& str, IN con
     } else {
         throw std::runtime_error("It is not a digit string with specified delim!");
     }
+}
+
+/*
+ * 功能：分割驼峰风格字符串。
+ */
+inline std::vector<std::string> StringHelper::SplitCamelCase(IN const std::string& str) {
+    std::vector<std::string> token;
+    if (!str.empty()) {
+        std::string subStr;
+        for (size_t i = 0; i < str.size(); i++) {
+            if ((i == str.size() - 1) ||
+                (i != str.size() - 1 && isupper(str[i + 1]))) {
+                subStr += str[i];
+                token.push_back(move(subStr));
+                subStr.clear();
+            } else {
+                subStr += str[i];
+            }
+        }
+        return token;
+    } else {
+        return token;
+    }
+}
+
+/*
+ * 功能：分割下划线风格字符串。
+ */
+inline std::vector<std::string> StringHelper::SplitUnderline(IN const std::string& str) {
+    return StringHelper::Split(str, "_");
 }
 
 /*
