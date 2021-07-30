@@ -176,27 +176,16 @@ inline size_t StringHelper::Count(IN const std::string& str, IN const std::strin
         end = str.size() - 1;
     }
 
-    if (end - start + 1 < str.size()) {
-        std::string newStr = str.substr(start, end + 1);
 
-        size_t count = 0;
-        size_t pos = newStr.find(sub);
-        while (pos != std::string::npos) {
-            count++;
-            pos = newStr.find(sub, std::min(pos + sub.size(), newStr.size() - 1));
-        }
-
-        return count;
-    } else {
-        size_t count = 0;
-        size_t pos = str.find(sub);
-        while (pos != std::string::npos) {
-            count++;
-            pos = str.find(sub, std::min(pos + sub.size(), str.size() - 1));
-        }
-
-        return count;
+    size_t count = 0;
+    size_t pos = str.find(sub, start);
+    while (pos != std::string::npos &&
+           pos <= end - sub.size() + 1) {
+        count++;
+        pos = str.find(sub, std::min(pos + sub.size(), end));
     }
+    
+    return count;
 }
 
 /*
