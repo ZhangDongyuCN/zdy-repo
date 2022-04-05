@@ -1,7 +1,8 @@
 # -*- coding: UTF-8 -*-
 
-import shutil
 import base64
+import shutil
+from functools import partial
 from os import makedirs, listdir
 from os.path import exists, join
 
@@ -27,14 +28,12 @@ def split_txt_file(txt, each_file_mb, save_dir):
     makedirs(save_dir)
 
     with open(txt, 'r') as fin:
+        blocks = iter(partial(fin.read, each_file_b), '')
         i = 1
-        while True:
-            data = fin.read(each_file_b)
+        for block in blocks:
             with open(join(save_dir, str(i) + '.txt'), 'w') as fout:
-                fout.write(data)
+                fout.write(block)
             i += 1
-            if len(data) < each_file_b:
-                break
 
 
 def merge_txt_file(txt_dir, txt):
