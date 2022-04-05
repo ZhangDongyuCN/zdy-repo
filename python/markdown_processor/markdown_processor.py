@@ -159,7 +159,12 @@ def aggregate_single_md_img(md_file_path, local_imgs_storage_dir_path):
         print(f'parameter: {local_imgs_storage_dir_path} must be dir path')
         return
 
-    # 查找图片所在的目录名字（图片存储在与md文件同路径且同名的目录下）
+    # 校验图片存储目录是否存在（图片存储在与md文件同路径且同名的目录下）
+    img_storage_dir = md_file_path.replace('.md', '.imgs')
+    if not exists(img_storage_dir):
+        print('not find md image storage dir, must be xxx.imgs')
+        return
+
     sub_dirs = listdir(dirname(md_file_path))
     sub_dirs.remove(basename(md_file_path))
     img_dir_path = None
@@ -197,7 +202,7 @@ def aggregate_single_md_img(md_file_path, local_imgs_storage_dir_path):
     with open(md_file_path, 'wt', encoding='utf-8') as f_md:
         f_md.write(txt_des)
 
-    rmtree(img_dir_path)
+    rmtree(img_storage_dir)
 
 
 def recursion_aggregate_md_img(dir_path, local_imgs_storage_dir_path):
@@ -380,13 +385,13 @@ if '__main__' == __name__:
     8：递归逐个处理一个目录下的所有markdown文件，对于每个markdown文件，
        为markdown文件中的图片添加名字。e.g. ![*](xx_dir/xx.png] -> ![xx.png](xx_dir/xx.png]。
        
-    9：每一行末尾增加两个空格
+    9：每一行末尾增加两个空格。
     
-    10：递归逐个处理一个目录下的所有markdown文件，对于每个markdown文件，每一行末尾增加两个空格
+    10：递归逐个处理一个目录下的所有markdown文件，对于每个markdown文件，每一行末尾增加两个空格。
     
-    11：删除每行末尾空格
+    11：删除每行末尾空格。
     
-    12：递归逐个处理一个目录下的所有markdown文件，对于每个markdown文件，删除每行末尾空格
+    12：递归逐个处理一个目录下的所有markdown文件，对于每个markdown文件，删除每行末尾空格。
     '''
 
     print(msg)
