@@ -2,11 +2,11 @@
 # python = 3.8.5
 
 import time
-from os import walk, makedirs, listdir
+from os import walk, makedirs
 from os.path import isfile, basename, join, isdir, splitext, dirname, exists
 from shutil import move, rmtree
 
-from logger import init_log, logger_info
+from logger import init_log, logger_info, logger_error
 
 
 def proc_single_md_img_path(md_file_path, local_imgs_storage_dir_path):
@@ -477,7 +477,7 @@ if "__main__" == __name__:
                 recursion_remove_space_after_each_line(dir_path)
 
             else:
-                logger_info(f"运行模式：{run_mode}，运行模式输入错误，请等待2秒后重新输入！")
+                logger_error(f"运行模式：{run_mode}，运行模式输入错误，请等待2秒后重新输入！")
                 time.sleep(2)
                 print("\n\n")
                 continue
@@ -486,4 +486,4 @@ if "__main__" == __name__:
             time.sleep(2)
             print("\n\n")
     except Exception as e:
-        logger_info(f"捕获到异常，代码内部逻辑错误，请及时修复！异常信息: {e}")
+        logger_error(f"捕获到异常，代码内部逻辑错误，请及时修复！异常信息: {e}")
