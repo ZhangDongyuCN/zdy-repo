@@ -5,7 +5,7 @@ import time
 import encode_file
 import modify_ext
 import rename_file
-from logger import init_log, logger_info
+from logger import init_log, logger_info, logger_error
 
 if "__main__" == __name__:
     # 初始化日志
@@ -155,7 +155,7 @@ if "__main__" == __name__:
                 encode_file.merge_txt_file(txt_dir, txt)
 
             else:
-                logger_info(f"运行模式：{run_mode}，运行模式输入错误，请等待2秒后重新输入！")
+                logger_error(f"运行模式：{run_mode}，运行模式输入错误，请等待2秒后重新输入！")
                 time.sleep(2)
                 print("\n\n")
                 continue
@@ -164,4 +164,4 @@ if "__main__" == __name__:
             time.sleep(2)
             print("\n\n")
     except Exception as e:
-        logger_info(f"捕获到异常，代码内部逻辑错误，请及时修复！异常信息: {e}")
+        logger_error(f"捕获到异常，代码内部逻辑错误，请及时修复！异常信息: {e}")

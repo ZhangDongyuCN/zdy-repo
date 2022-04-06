@@ -7,7 +7,7 @@ from os.path import basename, join, splitext, getctime, getmtime
 
 import exifread
 
-from logger import logger_info
+from logger import logger_info, logger_error
 
 
 def _gen_new_file_name(timestamp, format):
@@ -83,7 +83,7 @@ def hump_2_underline_for_dir(dir):
                 rename(old_name, new_name)
                 logger_info(f"{basename(old_name)} --> {basename(new_name)}")
             except Exception as e:
-                logger_info(f'跳过文件：{basename(old_name)}，异常信息：{e}')
+                logger_error(f'跳过文件：{basename(old_name)}，异常信息：{e}')
         for dir in dirs:
             old_name = join(root, dir)
             new_name = join(root, _hump_2_underline(dir))
@@ -91,7 +91,7 @@ def hump_2_underline_for_dir(dir):
                 rename(old_name, new_name)
                 logger_info(f"{basename(old_name)} --> {basename(new_name)}")
             except Exception as e:
-                logger_info(f'跳过文件：{basename(old_name)}，异常信息：{e}')
+                logger_error(f'跳过文件：{basename(old_name)}，异常信息：{e}')
 
 
 def underline_2_hump_for_dir(dir):
@@ -104,7 +104,7 @@ def underline_2_hump_for_dir(dir):
                 rename(old_name, new_name)
                 logger_info(f"{basename(old_name)} --> {basename(new_name)}")
             except Exception as e:
-                logger_info(f'跳过文件：{basename(old_name)}，异常信息：{e}')
+                logger_error(f'跳过文件：{basename(old_name)}，异常信息：{e}')
         for dir in dirs:
             old_name = join(root, dir)
             new_name = join(root, _underline_2_hump(dir))
@@ -112,7 +112,7 @@ def underline_2_hump_for_dir(dir):
                 rename(old_name, new_name)
                 logger_info(f"{basename(old_name)} --> {basename(new_name)}")
             except Exception as e:
-                logger_info(f'跳过文件：{basename(old_name)}，异常信息：{e}')
+                logger_error(f'跳过文件：{basename(old_name)}，异常信息：{e}')
 
 
 def rename_file_by_regex(dir, pattern, repl):
@@ -163,7 +163,7 @@ def rename_pic_by_shooting_time(dir):
                 else:
                     logger_info(f'跳过文件：{basename(long_name)}')
             except Exception as e:
-                logger_info(f'跳过文件：{file}，异常信息：{e}')
+                logger_error(f'跳过文件：{file}，异常信息：{e}')
 
 
 def rename_pic_with_weixin_format(dir):

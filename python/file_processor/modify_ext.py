@@ -3,7 +3,7 @@
 from os import walk, rename
 from os.path import basename, join, splitext
 
-from logger import logger_info
+from logger import logger_info, logger_error
 
 
 def change_ext(dir, newExt):
@@ -16,7 +16,7 @@ def change_ext(dir, newExt):
                 rename(old_name, new_name)
                 logger_info(f'{basename(old_name)} --> {basename(new_name)}')
             except Exception as e:
-                logger_info(f'跳过文件：{basename(old_name)}，异常信息：{e}')
+                logger_error(f'跳过文件：{basename(old_name)}，异常信息：{e}')
 
 
 def to_lower_case_ext(dir):
@@ -30,7 +30,7 @@ def to_lower_case_ext(dir):
                 rename(old_name, new_name)
                 logger_info(f'{basename(old_name)} --> {basename(new_name)}')
             except Exception as e:
-                logger_info(f'跳过文件：{basename(old_name)}，异常信息：{e}')
+                logger_error(f'跳过文件：{basename(old_name)}，异常信息：{e}')
 
 
 def to_upper_case_ext(dir):
@@ -44,4 +44,4 @@ def to_upper_case_ext(dir):
                 rename(old_name, new_name)
                 logger_info(f'{basename(old_name)} --> {basename(new_name)}')
             except Exception as e:
-                logger_info(f'跳过文件：{basename(old_name)}，异常信息：{e}')
+                logger_error(f'跳过文件：{basename(old_name)}，异常信息：{e}')
