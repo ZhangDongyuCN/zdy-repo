@@ -194,7 +194,21 @@ def rename_pic_with_meituxiuxiu_format(dir):
     '''
     针对目录下（包含子目录）下的美图秀秀照片进行名称规范化处理。
     '''
-    pass
+    for root, dirs, files in walk(dir):
+        for file in files:
+            short_name = file
+            long_name = join(root, file)
+
+            short_new_name = re.sub(r"^(MTXX_)(\d{8})(\d{6})(\.)(.+)$",
+                                    r"IMG_\g<2>_\g<3>\g<4>\g<5>",
+                                    short_name)
+            long_new_name = join(root, short_new_name)
+
+            try:
+                rename(long_name, long_new_name)
+                logger_info(f"{basename(long_name)} --> {basename(long_new_name)}")
+            except Exception:
+                _deal_repate_file_name(root, long_name, splitext(short_new_name)[0], splitext(short_new_name)[1], 1)
 
 
 def rename_pic_with_baiduwangpan_format(dir):
