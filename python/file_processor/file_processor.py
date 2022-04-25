@@ -5,6 +5,7 @@ import time
 import encode_file
 import modify_ext
 import rename_file
+from generate_random_pwd import GenerateRandomPwd
 from logger import init_log, logger_info, logger_error
 
 if "__main__" == __name__:
@@ -54,6 +55,10 @@ if "__main__" == __name__:
     2.3 --> 分割txt文件
 
     2.4 --> 合并txt文件
+    
+    ******************************* 密码 *******************************
+    
+    3.1 --> 生成随机密码
                     """
 
             print(msg)
@@ -153,6 +158,11 @@ if "__main__" == __name__:
                 txt = input("请输入合并后的txt文件保存路径（e.g. D:\\xx.txt）：\n")
                 logger_info(f"运行模式：{run_mode}，文件目录：{txt_dir}，保存路径：{txt}")
                 encode_file.merge_txt_file(txt_dir, txt)
+
+            elif "3.1" == run_mode:
+                pwd_len = input("请输入需要的密码长度：\n")
+                pwd = GenerateRandomPwd.generate_random_pwd(int(pwd_len))
+                logger_info(f"随机密码：\n{pwd}")
 
             else:
                 logger_error(f"运行模式：{run_mode}，运行模式输入错误，请等待2秒后重新输入！")
