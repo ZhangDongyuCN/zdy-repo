@@ -1,12 +1,15 @@
 # -*- coding: UTF-8 -*-
 
+import sys
 import time
 
 import encode_file
 import modify_ext
 import rename_file
 from generate_random_pwd import GenerateRandomPwd
-from logger import init_log, logger_info, logger_error
+from logger import init_log, logger_error, logger_info
+
+sys.setrecursionlimit(10000)
 
 if "__main__" == __name__:
     # 初始化日志
@@ -38,13 +41,7 @@ if "__main__" == __name__:
 
     1.8 --> 根据正则规则重命名文件
 
-    1.9 --> 根据照片拍摄时间重命名照片
-
-    1.10 --> 针对目录下（包含子目录）下的微信照片进行名称规范化处理
-    
-    1.11 --> 针对目录下（包含子目录）下的美图秀秀照片进行名称规范化处理
-    
-    1.12 --> 针对目录下（包含子目录）下的百度网盘照片进行名称规范化处理
+    1.9 --> 针对目录下（包含子目录）下的照片进行名称规范化处理
 
     ****************************** 编解码 ******************************
 
@@ -55,9 +52,9 @@ if "__main__" == __name__:
     2.3 --> 分割txt文件
 
     2.4 --> 合并txt文件
-    
+
     ******************************* 密码 *******************************
-    
+
     3.1 --> 生成随机密码
                     """
 
@@ -117,22 +114,7 @@ if "__main__" == __name__:
             elif "1.9" == run_mode:
                 dir = input("请输入照片所在目录: \n")
                 logger_info(f"运行模式：{run_mode}，目录：{dir}")
-                rename_file.rename_pic_by_shooting_time(dir)
-
-            elif "1.10" == run_mode:
-                dir = input("请输入照片所在目录: \n")
-                logger_info(f"运行模式：{run_mode}，目录：{dir}")
-                rename_file.rename_pic_with_weixin_format(dir)
-
-            elif "1.11" == run_mode:
-                dir = input("请输入照片所在目录: \n")
-                logger_info(f"运行模式：{run_mode}，目录：{dir}")
-                rename_file.rename_pic_with_meituxiuxiu_format(dir)
-
-            elif "1.12" == run_mode:
-                dir = input("请输入照片所在目录: \n")
-                logger_info(f"运行模式：{run_mode}，目录：{dir}")
-                rename_file.rename_pic_with_baiduwangpan_format(dir)
+                rename_file.rename_dir_photos(dir)
 
             elif "2.1" == run_mode:
                 file = input("请输入要编码的文件路径（e.g. D:\\xx.zip）：\n")

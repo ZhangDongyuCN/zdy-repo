@@ -1,9 +1,11 @@
 # -*- coding: UTF-8 -*-
 
+from math import fabs
 import re
 import time
 from os import walk, rename
-from os.path import basename, join, splitext, getctime, getmtime
+from os.path import basename, join, splitext, getctime, getmtime, exists
+from tkinter.messagebox import NO
 
 import exifread
 
@@ -134,99 +136,110 @@ def rename_file_by_regex(dir, pattern, repl):
                 _deal_repate_file_name(root, long_name, splitext(short_new_name)[0], splitext(short_new_name)[1], 1)
 
 
-def rename_pic_by_shooting_time(dir):
+def rename_photo_with_regex_format(file, base_name, ext, long_name, root):
+    match_dict = {
+        "美图秀秀": (r"^(MTXX_)(\d{8})(\d{6})(\.)(.+)$", r"IMG_\g<2>_\g<3>\g<4>\g<5>"),
+        "百度网盘": (r"^(\d{4})(-)(\d{2})(-)(\d{2})( )(\d{6})(\.)(.+)$", r"IMG_\g<1>\g<3>\5_\g<7>\g<8>\g<9>"),
+        "april_2017-10-17-16-27-35-775.jpg": (r"^(.*)(\d{4})(.)(\d{2})(.)(\d{2})(.)(\d{2})(.)(\d{2})(.)(\d{2})(.*)(\.)(.+)$", r"IMG_\g<2>\g<4>\g<6>_\g<8>\g<10>\g<12>\g<14>\g<15>"),
+        "PIC_20220222_201411812.jpg": (r"^(.*)(\d{8}_)(\d{6})(.*)(\.)(.+)", r"IMG_\g<2>\g<3>\g<5>\g<6>")
+    }
+
+    for _, (pattern, repl) in match_dict.items():
+        match_obj = re.search(pattern, file)
+        if match_obj:
+            short_name = file
+            short_new_name = re.sub(pattern, repl, short_name)
+            long_new_name = join(root, short_new_name)
+
+            try:
+                rename(long_name, long_new_name)
+                logger_info(f"{basename(long_name)} --> {basename(long_new_name)}")
+            except Exception:
+                _deal_repate_file_name(root, long_name, splitext(short_new_name)[0], splitext(short_new_name)[1], 1)
+
+    # 如果经过处理后原照片还在，说明没处理成功，否则处理成功
+    if exists(long_name):
+        return False
+    return True
+
+
+def rename_photo_with_timestamp_regex_format(file, base_name, ext, long_name, root):
+    match_dict = {
+        "微信": (r"^(mmexport)(\d{13})(\D*)$", 2),
+        "包含时间戳": (r"^(.*)(\d{13})(.*)$", 2)
+    }
+
+    for _, (pattern, group) in match_dict.items():
+        match_obj = re.search(pattern, base_name)
+        if match_obj:
+            timestamp = float(match_obj.group(group)[0:10])  # localtime只能接收秒级的时间戳，也就是10位
+            time.localtime(timestamp)
+            short_new_name = _gen_new_file_name(timestamp, "IMG_%Y%m%d_%H%M%S")
+            long_new_name = join(root, short_new_name + ext)
+
+            try:
+                rename(long_name, long_new_name)
+                logger_info(f"{basename(long_name)} --> {basename(long_new_name)}")
+            except Exception:
+                _deal_repate_file_name(root, long_name, short_new_name, ext, 1)
+
+    # 如果经过处理后原照片还在，说明没处理成功，否则处理成功
+    if exists(long_name):
+        return False
+    return True
+
+
+def rename_photo_by_shooting_time(file, base_name, ext, long_name, root):
     '''
-    根据照片拍摄时间递归重命名一个目录下所有的照片名字，命名格式为：IMG_20170616_221206.JPG，IMG_20170616_221206_1.JPG，...
+    根据照片拍摄时间递归重命名照片名字，命名格式为：IMG_20170616_221206.JPG，IMG_20170616_221206_1.JPG，...
     '''
     shooting_time_field = 'EXIF DateTimeOriginal'
-    for root, dirs, files in walk(dir):
-        for file in files:
-            # exifread.process_file(fd) 可能抛出异常，所以这里用 try 捕获
+    # exifread.process_file(fd) 可能抛出异常，所以这里用 try 捕获
+    try:
+        with open(long_name, 'rb') as fd:
+            tags = exifread.process_file(fd)
+
+        if shooting_time_field in tags:
+            info = str(tags[shooting_time_field])
+            short_new_name = 'IMG_' + info[0:10] + '_' + info[11:11 + 8]
+            short_new_name = short_new_name.replace(':', '')
+            long_new_name = join(root, short_new_name + ext)
+
             try:
-                base_name, ext = splitext(file)
-                long_name = join(root, file)
+                rename(long_name, long_new_name)
+                logger_info(f"{basename(long_name)} --> {basename(long_new_name)}")
+            except Exception:
+                _deal_repate_file_name(root, long_name, short_new_name, ext, 1)
+        else:
+            logger_info(f'跳过文件：{basename(long_name)}')
+    except Exception as e:
+        logger_error(f'跳过文件：{file}，异常信息：{e}')
 
-                with open(long_name, 'rb') as fd:
-                    tags = exifread.process_file(fd)
-
-                if shooting_time_field in tags:
-                    info = str(tags[shooting_time_field])
-                    short_new_name = 'IMG_' + info[0:10] + '_' + info[11:11 + 8]
-                    short_new_name = short_new_name.replace(':', '')
-                    long_new_name = join(root, short_new_name + ext)
-
-                    try:
-                        rename(long_name, long_new_name)
-                        logger_info(f"{basename(long_name)} --> {basename(long_new_name)}")
-                    except Exception:
-                        _deal_repate_file_name(root, long_name, short_new_name, ext, 1)
-                else:
-                    logger_info(f'跳过文件：{basename(long_name)}')
-            except Exception as e:
-                logger_error(f'跳过文件：{file}，异常信息：{e}')
+    # 如果经过处理后原照片还在，说明没处理成功，否则处理成功
+    if exists(long_name):
+        return False
+    return True
 
 
-def rename_pic_with_weixin_format(dir):
+def rename_dir_photos(dir):
     '''
-    针对目录下（包含子目录）下的微信照片进行名称规范化处理。
+    针对目录下（包含子目录）下的照片进行名称规范化处理。
     '''
     for root, dirs, files in walk(dir):
         for file in files:
             base_name, ext = splitext(file)
             long_name = join(root, file)
 
-            # 微信照片的命名格式为：mmexport1405241187825.jpg，中间的数字是13位的毫秒级时间戳
-            match_obj = re.search(r"^(mmexport)(\d{13})(\D*)$", base_name)
-            if match_obj:
-                timestamp = float(match_obj.group(2)[0:10])  # localtime只能接收秒级的时间戳，也就是10位
-                time.localtime(timestamp)
-                short_new_name = _gen_new_file_name(timestamp, "IMG_%Y%m%d_%H%M%S")
-                long_new_name = join(root, short_new_name + ext)
+            if ext in (".mp4", ):
+                continue
 
-                try:
-                    rename(long_name, long_new_name)
-                    logger_info(f"{basename(long_name)} --> {basename(long_new_name)}")
-                except Exception:
-                    _deal_repate_file_name(root, long_name, short_new_name, ext, 1)
+            if re.search(r"^IMG_\d{8}_\d{6}\..+$", file):
+                continue
 
+            if rename_photo_by_shooting_time(file, base_name, ext, long_name, root):
+                continue
 
-def rename_pic_with_meituxiuxiu_format(dir):
-    '''
-    针对目录下（包含子目录）下的美图秀秀照片进行名称规范化处理。
-    '''
-    for root, dirs, files in walk(dir):
-        for file in files:
-            short_name = file
-            long_name = join(root, file)
+            if rename_photo_with_timestamp_regex_format(file, base_name, ext, long_name, root):
+                continue
 
-            short_new_name = re.sub(r"^(MTXX_)(\d{8})(\d{6})(\.)(.+)$",
-                                    r"IMG_\g<2>_\g<3>\g<4>\g<5>",
-                                    short_name)
-            long_new_name = join(root, short_new_name)
-
-            try:
-                rename(long_name, long_new_name)
-                logger_info(f"{basename(long_name)} --> {basename(long_new_name)}")
-            except Exception:
-                _deal_repate_file_name(root, long_name, splitext(short_new_name)[0], splitext(short_new_name)[1], 1)
-
-
-def rename_pic_with_baiduwangpan_format(dir):
-    '''
-    针对目录下（包含子目录）下的百度网盘照片进行名称规范化处理。
-    '''
-    for root, dirs, files in walk(dir):
-        for file in files:
-            short_name = file
-            long_name = join(root, file)
-
-            short_new_name = re.sub(r"^(\d{4})(-)(\d{2})(-)(\d{2})( )(\d{6})(\.)(.+)$",
-                                    r"IMG_\g<1>\g<3>\5_\g<7>\g<8>\g<9>",
-                                    short_name)
-            long_new_name = join(root, short_new_name)
-
-            try:
-                rename(long_name, long_new_name)
-                logger_info(f"{basename(long_name)} --> {basename(long_new_name)}")
-            except Exception:
-                _deal_repate_file_name(root, long_name, splitext(short_new_name)[0], splitext(short_new_name)[1], 1)
+            rename_photo_with_regex_format(file, base_name, ext, long_name, root)
